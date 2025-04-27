@@ -1,0 +1,12 @@
+audit:
+  kafka:
+    host: kafka
+    port: 9092
+    topic: audit-log-topic
+    groupId: audit-log-group
+  elasticsearch:
+    host: elasticsearch
+    port: 9200
+    alias: audit-log-alias
+    indexPrefix: audit-log-
+
