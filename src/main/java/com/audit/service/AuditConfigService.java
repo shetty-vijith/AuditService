@@ -45,7 +45,7 @@ public class AuditConfigService {
                     .build();
             elasticsearchClient.indices().rollover(rolloverRequest);
         } catch (Exception e) {
-            log.error("Error performing rollover {0}", e);
+            log.error("Error performing rollover {}", e.getMessage(), e);
         }
         return updatedConfig;
     }
