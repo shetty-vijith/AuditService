@@ -1,10 +1,7 @@
 package com.audit.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
-import co.elastic.clients.elasticsearch.indices.ExistsAliasRequest;
-import co.elastic.clients.elasticsearch.indices.PutAliasRequest;
+import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.audit.config.ElasticSearchProperties;
 import org.junit.jupiter.api.Assertions;
@@ -17,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -75,5 +73,18 @@ public class ElasticSearchServiceTest {
 
         Assertions.assertEquals("testIndexPrefix-0", captorIndex.getValue().index());
         Assertions.assertEquals("testAlias", captorAlias.getValue().name());
+    }
+
+    @Test
+    public void rollover() throws IOException {
+        when(elasticSearchProperties.getAlias()).thenReturn("testAlias");
+        elasticSearchService.rollover(5);
+
+        ArgumentCaptor<RolloverRequest> captorRollover = ArgumentCaptor.forClass(RolloverRequest.class);
+        verify(indicesClient).rollover(captorRollover.capture());
+
+        RolloverRequest rolloverRequest = captorRollover.getValue();
+        Assertions.assertEquals("testAlias", rolloverRequest.alias());
+        Assertions.assertEquals(TimeUnit.DAYS.toMillis(5), rolloverRequest.conditions().maxAgeMillis());
     }
 }
